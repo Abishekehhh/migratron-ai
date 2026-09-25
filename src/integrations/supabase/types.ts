@@ -14,7 +14,174 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      bob_sessions: {
+        Row: {
+          created_at: string
+          id: string
+          job_id: string
+          mode: string
+          owner_id: string
+          prompt: string
+          response: string | null
+          screenshot_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          job_id: string
+          mode: string
+          owner_id: string
+          prompt: string
+          response?: string | null
+          screenshot_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          job_id?: string
+          mode?: string
+          owner_id?: string
+          prompt?: string
+          response?: string | null
+          screenshot_url?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bob_sessions_job_id_owner_id_fkey"
+            columns: ["job_id", "owner_id"]
+            isOneToOne: false
+            referencedRelation: "migration_jobs"
+            referencedColumns: ["id", "owner_id"]
+          },
+        ]
+      }
+      impact_analysis: {
+        Row: {
+          affected_program: string
+          created_at: string
+          details: string
+          id: string
+          impact_level: string
+          job_id: string
+          owner_id: string
+          updated_at: string
+        }
+        Insert: {
+          affected_program: string
+          created_at?: string
+          details: string
+          id?: string
+          impact_level: string
+          job_id: string
+          owner_id: string
+          updated_at?: string
+        }
+        Update: {
+          affected_program?: string
+          created_at?: string
+          details?: string
+          id?: string
+          impact_level?: string
+          job_id?: string
+          owner_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "impact_analysis_job_id_owner_id_fkey"
+            columns: ["job_id", "owner_id"]
+            isOneToOne: false
+            referencedRelation: "migration_jobs"
+            referencedColumns: ["id", "owner_id"]
+          },
+        ]
+      }
+      migration_jobs: {
+        Row: {
+          cobol_source: string
+          created_at: string
+          id: string
+          java_output: string | null
+          name: string
+          owner_id: string
+          progress: number
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          cobol_source: string
+          created_at?: string
+          id?: string
+          java_output?: string | null
+          name: string
+          owner_id: string
+          progress?: number
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          cobol_source?: string
+          created_at?: string
+          id?: string
+          java_output?: string | null
+          name?: string
+          owner_id?: string
+          progress?: number
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      migration_phases: {
+        Row: {
+          bob_session_id: string | null
+          created_at: string
+          id: string
+          job_id: string
+          output: string | null
+          owner_id: string
+          phase_name: string
+          phase_order: number
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          bob_session_id?: string | null
+          created_at?: string
+          id?: string
+          job_id: string
+          output?: string | null
+          owner_id: string
+          phase_name: string
+          phase_order: number
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          bob_session_id?: string | null
+          created_at?: string
+          id?: string
+          job_id?: string
+          output?: string | null
+          owner_id?: string
+          phase_name?: string
+          phase_order?: number
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "migration_phases_job_id_owner_id_fkey"
+            columns: ["job_id", "owner_id"]
+            isOneToOne: false
+            referencedRelation: "migration_jobs"
+            referencedColumns: ["id", "owner_id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
