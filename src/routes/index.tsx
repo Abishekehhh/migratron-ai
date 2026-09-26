@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import {
   Activity,
@@ -80,6 +80,9 @@ function LegacyPilot() {
   const [jobName, setJobName] = useState("");
   const [source, setSource] = useState("");
   const [showComposer, setShowComposer] = useState(false);
+  const [isLive, setIsLive] = useState(false);
+  const jobsRef = useRef<Job[]>([]);
+  jobsRef.current = jobs;
 
   useEffect(() => {
     let alive = true;
