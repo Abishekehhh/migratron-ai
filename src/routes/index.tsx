@@ -142,6 +142,54 @@ function LegacyPilot() {
     };
   }, [user]);
 
+  useEffect(() => {
+    if (!user) {
+      setIsLive(false);
+      return;
+    }
+    const userId = user.id;
+    const jobsFilter = `owner_id=eq.${userId}`;
+    const channel = supabase
+      .channel(`migration-jobs-${userId}`)
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "migration_jobs", filter: jobsFilter },
+        (payload) => {
+          const row = payload.new as Job;
+          setJobs((current) => current.some((job) => job.id === row.id) ? current : [row, ...current]);
+        },
+      )
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "migration_jobs", filter: jobsFilter },
+        (payload) => {
+          const row = payload.new as Job;
+          setJobs((current) => current.map((job) => job.id === row.id ? row : job));
+        },
+      )
+      .on(
+        "postgres_changes",
+        { event: "DELETE", schema: "public", table: "migration_jobs", filter: jobsFilter },
+        (payload) => {
+          const removedId = (payload.old as { id?: string }).id;
+          if (!removedId) return;
+          setJobs((current) => current.filter((job) => job.id !== removedId));
+          setSelectedId((current) => {
+            if (current !== removedId) return current;
+            return jobsRef.current.find((job) => job.id !== removedId)?.id ?? null;
+          });
+        },
+      )
+      .subscribe((status) => {
+        setIsLive(status === "SUBSCRIBED");
+      });
+
+    return () => {
+      setIsLive(false);
+      void supabase.removeChannel(channel);
+    };
+  }, [user]);
+
   const selectedJob = jobs.find((job) => job.id === selectedId) ?? null;
   const visibleJobs = useMemo(() => jobs.filter((job) => {
     if (filter === "active") return !["completed", "failed"].includes(job.status);
@@ -262,7 +310,7 @@ function LegacyPilot() {
   }
 
   return <main className="app-shell">
-    <header className="topbar"><Brand /><nav className="top-nav" aria-label="Workspace sections"><span className="nav-active"><Layers3 size={15} />Workspace</span><span className="nav-muted"><Activity size={15} />Integrations <i>2</i></span></nav><div className="topbar-right"><span className="connected-indicator"><span />PRIVATE WORKSPACE</span><span className="user-chip" title={user.email ?? "Signed in"}>{(user.email?.[0] ?? "U").toUpperCase()}</span><Button variant="ghost" size="icon" onClick={signOut} aria-label="Sign out" title="Sign out"><LogOut size={16} /></Button></div></header>
+    <header className="topbar"><Brand /><nav className="top-nav" aria-label="Workspace sections"><span className="nav-active"><Layers3 size={15} />Workspace</span><span className="nav-muted"><Activity size={15} />Integrations <i>2</i></span></nav><div className="topbar-right"><span className={`live-indicator${isLive ? " live-on" : ""}`}><span className="live-dot" />{isLive ? "LIVE" : "SYNC"}</span><span className="connected-indicator"><span />PRIVATE WORKSPACE</span><span className="user-chip" title={user.email ?? "Signed in"}>{(user.email?.[0] ?? "U").toUpperCase()}</span><Button variant="ghost" size="icon" onClick={signOut} aria-label="Sign out" title="Sign out"><LogOut size={16} /></Button></div></header>
 
     <div className="workspace-wrap">
       <section className="page-heading"><div><div className="breadcrumb"><span>WORKSPACE</span><ChevronRight size={13} /><span className="breadcrumb-current">MIGRATIONS</span></div><h1>Migration workspace</h1><p>Understand the code. Plan the move. Keep every change traceable.</p></div><Button onClick={() => setShowComposer((shown) => !shown)}><Plus size={16} />New migration</Button></section>

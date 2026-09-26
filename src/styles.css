@@ -444,3 +444,10 @@
     color: var(--color-foreground);
   }
 }
+
+.live-indicator { display: inline-flex; align-items: center; gap: 6px; color: var(--muted-foreground); font: 10px var(--font-mono); letter-spacing: 0; white-space: nowrap; }
+.live-indicator .live-dot { width: 7px; height: 7px; display: inline-block; border-radius: 50%; background: var(--muted-foreground); }
+.live-indicator.live-on { color: oklch(0.51 0.115 164); }
+.live-indicator.live-on .live-dot { background: oklch(0.62 0.13 151); animation: live-pulse 1.8s ease-in-out infinite; }
+@keyframes live-pulse { 0%, 100% { box-shadow: 0 0 0 0 oklch(0.62 0.13 151 / 0.45); } 50% { box-shadow: 0 0 0 4px oklch(0.62 0.13 151 / 0); } }
+@media (prefers-reduced-motion: reduce) { .live-indicator.live-on .live-dot { animation: none; } }
