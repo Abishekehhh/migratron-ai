@@ -264,7 +264,7 @@ function LegacyPilot() {
       status: "pending",
     }));
     const { data: newPhases, error: phaseError } = await supabase.from("migration_phases").insert(phaseRows).select("*");
-    setJobs((current) => [newJob, ...current]);
+    setJobs((current) => current.some((job) => job.id === newJob.id) ? current : [newJob, ...current]);
     if (newPhases) setPhases((current) => [...current, ...newPhases]);
     setSelectedId(newJob.id);
     setJobName("");
